@@ -1,0 +1,4 @@
+To set up environment variables on cd'ing into repo 
+
+
+

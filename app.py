@@ -1,19 +1,45 @@
-import redis # Used as temp storage 
+from gevent import monkey 
+monkey.patch_all() 
+
+
 from flask import Flask, render_template # Flask dependencies 
+from flask.ext.sqlalchemy import SQLAlchemy # SQLAlchemy
+from flask.ext.socketio import SocketIO # SocketIO for Flask 
+import os # Operating System 
+
 
 # App 
 app = Flask(__name__)
+app.config.from_object(os.environ["APP_SETTINGS"])
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# DB 
-db = redis.StrictRedis("localhost", 6379, 0)
+# DB
+db = SQLAlchemy(app) 
+
+# Wrap app in socketIO 
+socketio = SocketIO(app) 
+
 
 @app.route('/')
 def main():
-	# Storage of information of REDIS DB 
-	c = db.incr("counter")
-	return render_template("main.html", counter=c)
+	return render_template("main.html")
+
+
+
+@socketio.on("connect", namespace="/dd")
+def ws_conn(): 
+	c = db.incr("connected")
+	socketio.emit("msg", { "count": c }, namespace="/dd")
+
+
+
+@socketio.on("disconnect", namespace="/dd")
+def ws_disconn(): 
+	c = db.decr("connected")
+	socketio.emit("msg", { "count": c }, namespace="/dd")
+
 
 
 
 if __name__ == "__main__":
-	app.run(debug=True) 
+	socketio.run(app, host="0.0.0.0", debug=True, port=5000)  
