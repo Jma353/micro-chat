@@ -6,6 +6,8 @@ from sqlalchemy.dialects.postgresql import JSON
 # Base db model (similar to ActiveModel)
 class Base(db.Model): 
 
+	# Makes this abstract so we aren't directly subclassing this relation 
+	# If we were, we'd need a foreign key to this "Base" relation from the subclass 
 	__abstract__ = True 
  
 

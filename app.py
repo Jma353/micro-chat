@@ -17,7 +17,10 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app) 
 
 # Wrap app in socketIO 
-socketio = SocketIO(app) 
+socketio = SocketIO(app)
+
+# Import our models 
+from models import User
 
 
 @app.route('/')
@@ -25,17 +28,16 @@ def main():
 	return render_template("main.html")
 
 
-
 @socketio.on("connect", namespace="/dd")
 def ws_conn(): 
-	c = db.incr("connected")
+	c = 0 
 	socketio.emit("msg", { "count": c }, namespace="/dd")
 
 
 
 @socketio.on("disconnect", namespace="/dd")
 def ws_disconn(): 
-	c = db.decr("connected")
+	c = 0 
 	socketio.emit("msg", { "count": c }, namespace="/dd")
 
 
