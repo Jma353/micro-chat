@@ -7,8 +7,11 @@ class Config(object):
 	DEBUG = False 
 	TESTING = False
 	CSRF_ENABLED = True 
+	CSRF_SESSION_KEY = "secret"
 	SECRET_KEY = "this_is_not_it"
 	SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
+	THREADS_PER_PAGE = 2
+
 
 
 class ProductionConfig(Config):

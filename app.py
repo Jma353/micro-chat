@@ -1,12 +1,22 @@
+# GEvent needed for sockets (must patch server before anything else)
 from gevent import monkey 
 monkey.patch_all() 
 
+# Flask dependencies 
+from flask import Flask, request, render_template, \
+	flash, g, session, redirect, url_for 
 
-from flask import Flask, render_template # Flask dependencies 
-from flask.ext.sqlalchemy import SQLAlchemy # SQLAlchemy
-from flask.ext.socketio import SocketIO # SocketIO for Flask 
-import os # Operating System 
+# Password / encryption things 
+from werkzeug import check_password_hash, generate_password_hash 
 
+# SQLAlchemy
+from flask.ext.sqlalchemy import SQLAlchemy 
+
+# SocketIO for Flask 
+from flask.ext.socketio import SocketIO 
+
+# Operating System 
+import os 
 
 # App 
 app = Flask(__name__)
@@ -21,6 +31,11 @@ socketio = SocketIO(app)
 
 # Import our models 
 from models import User
+
+# Forms 
+from forms import SignUp 
+
+
 
 
 @app.route('/')
@@ -45,3 +60,7 @@ def ws_disconn():
 
 if __name__ == "__main__":
 	socketio.run(app, host="0.0.0.0", debug=True, port=5000)  
+
+
+
+
