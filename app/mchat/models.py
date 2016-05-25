@@ -1,9 +1,18 @@
+import os
 from sqlalchemy.dialects.postgresql import JSON # Possibly not needed
 from sqlalchemy.orm import validates
 
 # Import db + marshmallow
 from app import db 
 from app import ma 
+
+from sqlalchemy import orm, create_engine 
+
+# Establish db sessions for concurrency safety 
+Session = orm.scoped_session(orm.sessionmaker())
+engine = create_engine(os.environ['DATABASE_URL'])
+Session.configure(bind=engine)
+
 
 
 # Base db model (similar to ActiveModel)
@@ -36,7 +45,16 @@ class User(Base):
 	password      = db.Column(db.String(192), nullable=False)
 
 
-	def __init__(self, name, email):
+	# Testing validation 
+	@validates('email')
+	def validate_email(self, key, email):
+		assert "@" in email
+		return email
+
+
+
+
+	def __init__(self, name, email, password):
 
 		self.name     = name
 		self.email    = email 
@@ -47,14 +65,21 @@ class User(Base):
 		return "<User %r>" % (self.name)
 
 
-def not_blank(data):
-	if not data: 
-		raise Valid
+
+
+
+# Base Schema w/Session
+class BaseSchema(ma.ModelSchema):
+	class Meta: 
+		sqla_session = Session
+
+
 
 # User Schema serializer 
-class UserSchema(ma.ModelSchema):
-	class Meta:
-		model = User 
+class UserSchema(BaseSchema):
+	class Meta(BaseSchema.Meta):
+		model = User
+
 
 
 

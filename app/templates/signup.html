@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+
+		<style type="text/css">
+			html { font-family: "Avenir Next" !important; }
+			#chats { list-style-type: none; }
+		</style>
+
+	</head> 
+
+	<body>
+
+		<h1>Hello world!</h1> 
+		<p>Response from socket: <span id="socketResponse"></span></p>
+
+		<!-- Mini-form to test emitting sockets --> 
+		<form action="">
+			<input id="chat"/><button>Send</button> 
+		</form>
+
+		<ul id="chats">
+
+		</ul> 
+
+		<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+		<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+		<script>
+
+
+			$(document).ready(function () {
+				var url = "http://" + document.domain + ":" + location.port; 
+				var socket = io.connect(url + '/test'); 
+
+
+				// On form submission
+				$('form').submit(function () {
+					// Emit the chat message
+					socket.emit('chat', $('#chat').val()); 
+					// Reset the chat value
+					$('#chat').val(''); 
+					return false;
+				}); 
+
+
+				socket.on('msg', function (msg) {
+					$("#socketResponse").html(msg.lol); 
+				}); 
+
+				socket.on('chat', function (chat) {
+					$('#chats').append($('<li>').text(chat.lol)); 
+				}); 
+
+
+
+			}); 	
+
+
+
+
+		</script> 
+		
+	</body>	
+		
+
+</html> 
