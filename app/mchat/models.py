@@ -1,6 +1,9 @@
+from sqlalchemy.dialects.postgresql import JSON # Possibly not needed
+from sqlalchemy.orm import validates
+
+# Import db + marshmallow
 from app import db 
-# This import was part of the Real Python tutorial, but possibly not needed for our purposes 
-from sqlalchemy.dialects.postgresql import JSON
+from app import ma 
 
 
 # Base db model (similar to ActiveModel)
@@ -43,6 +46,15 @@ class User(Base):
 	def __repr(self):
 		return "<User %r>" % (self.name)
 
+
+def not_blank(data):
+	if not data: 
+		raise Valid
+
+# User Schema serializer 
+class UserSchema(ma.ModelSchema):
+	class Meta:
+		model = User 
 
 
 
