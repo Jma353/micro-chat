@@ -4,10 +4,6 @@ from flask.ext.migrate import Migrate, MigrateCommand
 
 from app import app, db
 
-# Pull the app's env configurations 
-app.config.from_object(os.environ["APP_SETTINGS"])
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
-
 
 migrate = Migrate(app, db)
 manager = Manager(app)

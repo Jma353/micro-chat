@@ -4,6 +4,9 @@
 from gevent import monkey 
 monkey.patch_all() 
 
+# Import OS
+import os 
+
 # Import flask and template operators
 from flask import Flask, render_template 
 
@@ -28,6 +31,10 @@ app = Flask(__name__)
 
 # Set debug option
 app.debug = True
+
+# Pull the app's env configurations 
+app.config.from_object(os.environ["APP_SETTINGS"])
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
 
 # Define the database object (imported by modules + controllers)
