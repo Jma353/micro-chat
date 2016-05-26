@@ -1,4 +1,5 @@
 # Methods to compose HTTP response JSON 
+from flask import jsonify
 
 def http_json(result, bool):
 	result.update({ "success": bool })

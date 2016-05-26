@@ -6,5 +6,6 @@ mchat = Blueprint('mchat', __name__, url_prefix='/mchat')
 
 
 # Import all controllers 
-from controllers import * 
+from controllers.users_controller import * 
+from controllers.sessions_controller import * 
 

@@ -15,16 +15,23 @@ class Session(Base):
 	# Session code 
 	session_code  = db.Column(db.String(40))
 	
+	# Is active boolean field 
 	is_active     = db.Column(db.Boolean)
 
 	def __init__(self, user_id):
 
 		self.user_id = user_id
-		self.session_code = hashlib(os.urandom(64)).hexdigest()
+		self.session_code = hashlib.sha1(os.urandom(64)).hexdigest()
 		self.is_active = True 
+
 
 	def __repr__(self):
 		return "<Session for user %r>" % (self.user_id)
+
+	# To update the session code on re-sign in 
+	def update_session_code(): 
+		self.session_code = hashlib.sha1(os.urandom(64)).hexdigest() 
+		self.is_active = True 
 
 
 

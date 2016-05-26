@@ -2,7 +2,7 @@
 import os
 
 # Import marshmallow functionality 
-from marshmallow import fields, validates_schema
+from marshmallow import fields, validates_schema, ValidationError
 
 # Load these from the main app 
 from app import db 

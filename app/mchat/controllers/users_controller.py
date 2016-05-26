@@ -25,10 +25,32 @@ def signup():
 			return http_resource(result, "user")
 
 
+
 # Helper to auth on sign in 
 def auth_pass(email, password): 
-	user = db.session.query(User).filter(User.email==email).first()
-	return check_password_hash(user.password_digest, password)
+	user = db.session.query(User).filter(User.email == email).first()
+	user_id = user.id
+	return user_id, check_password_hash(user.password_digest, password)
+
+
+# Get or create a session (NOTE: different than user session)
+def get_or_create_session(user_id): 
+
+	sessions = db.session.query(Session).filter(Session.user_id == user_id)
+
+	# Check to see if the session doesn't exist or is inactive 
+	if len(sessions.all()) == 0: 
+		session = Session(user_id=user_id)
+		db.session.add(session)
+		db.session.commit() 
+		return session
+	else: 
+		session = sessions.first() 
+		if not session.is_active: 
+			session.update_session_code() 
+			db.session.commit() 
+		return session
+
 
 # Sign in 
 @mchat.route(namespace + '/signin/', methods=['POST'])
@@ -36,9 +58,16 @@ def signin():
 	# Get headers E and P (email and password)
 	email = request.headers.get('E')
 	password = request.headers.get('P')
-
-	if auth_pass(email, password): 
-		return jsonify({ "success": True })
+	user_id, authenticated = auth_pass(email, password)
+	if authenticated: 
+		session = get_or_create_session(user_id)
+		return jsonify(
+		{ "success" : True, "data" : { 
+			"session" : { 
+				"session_code" : session.session_code 
+				}
+			}
+		})
 	else: 
 		resp = jsonify({ "success": False })
 		resp.status_code = 401
