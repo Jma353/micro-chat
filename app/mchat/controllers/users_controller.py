@@ -7,8 +7,8 @@ from helpers import http_resource, http_errors
 namespace = '/users'
 
 # Sign Up Route 
-@mchat.route(namespace + '/signup/', methods=['GET', 'POST'])
-def signup(): 
+@mchat.route(namespace + '/sign_up/', methods=['GET', 'POST'])
+def sign_up(): 
 	if request.method == 'GET':
 		return render_template('signup.html')
 
@@ -16,7 +16,6 @@ def signup():
 		json_data = request.get_json() 
 		result = UserSchema().load(json_data)
 		if result.errors: 
-			print result.errors
 			return http_errors(result)
 		else: 
 			db.session.add(result.data)
@@ -53,8 +52,8 @@ def get_or_create_session(user_id):
 
 
 # Sign in 
-@mchat.route(namespace + '/signin/', methods=['POST'])
-def signin(): 
+@mchat.route(namespace + '/sign_in/', methods=['POST'])
+def sign_in(): 
 	# Get headers E and P (email and password)
 	email = request.headers.get('E')
 	password = request.headers.get('P')
@@ -62,16 +61,47 @@ def signin():
 	if authenticated: 
 		session = get_or_create_session(user_id)
 		return jsonify(
-		{ "success" : True, "data" : { 
-			"session" : { 
-				"session_code" : session.session_code 
+			{ "success" : True, "data" : { 
+				"session" : { 
+					"session_code" : session.session_code 
+					}
 				}
 			}
-		})
+		)
 	else: 
 		resp = jsonify({ "success": False })
 		resp.status_code = 401
 		return resp
+
+# Sign out (a lot of repeating, must refactor later)
+@mchat.route(namespace + '/sign_out/', methods=['POST'])
+def sign_out(): 
+	session_code = request.headers.get('SessionCode')
+	if not session_code: 
+		resp = jsonify(
+			{ "success" : False, "data" : {
+				"errors" : ["No SessionCode header provided"]
+				}
+			}
+		)
+		resp.status_code = 401 
+		return resp
+	else: 
+		sess = db.session.query(Session).filter(Session.session_code == session_code)
+		if len(sess.all()) == 0:
+			resp = jsonify(
+				{ "success" : False, "data" : {
+					"errors" : ["This session does not exist"]
+					}
+				}
+			)
+			resp.status_code = 401
+			return resp
+		else: 
+			sess = sess.first() 
+			sess.is_active = False
+			db.session.commit() 
+			return jsonify({ "success" : True })
 
 
 
