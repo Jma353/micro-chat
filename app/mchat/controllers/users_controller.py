@@ -6,6 +6,21 @@ from helpers import http_resource, http_errors
 # Namespace 
 namespace = '/users'
 
+# Schema generators 
+user_schema = UserSchema(exclude=("password_digest",))
+users_schema = UserSchema(many=True, exclude=("password_digest",))
+
+
+# User Index Route 
+@mchat.route(namespace + '/index/', methods=['GET'])
+def user_index(): 
+	# Get all users 
+	all_users = db.session.query(User).all() 
+	result = users_schema.dump(all_users)
+	return http_resource(result.data, "users", True)
+
+
+
 # Sign Up Route 
 @mchat.route(namespace + '/sign_up/', methods=['GET', 'POST'])
 def sign_up(): 
@@ -20,8 +35,8 @@ def sign_up():
 		else: 
 			db.session.add(result.data)
 			db.session.commit() 
-			result = UserSchema(exclude=("password_digest",)).dump(result.data)
-			return http_resource(result.data, "user")
+			result = user_schema.dump(result.data)
+			return http_resource(result.data, "user", True)
 
 
 
@@ -60,8 +75,8 @@ def sign_in():
 	user_id, authenticated = auth_pass(email, password)
 	if authenticated: 
 		session = get_or_create_session(user_id)
-		session_data = { "session" : { "session_code" : session.session_code }}
-		return http_resource(session_data, True)
+		session_data = { "session_code" : session.session_code }
+		return http_resource(session_data, "session", True)
 	else: 
 		resp = jsonify({ "success": False })
 		resp.status_code = 401
@@ -73,15 +88,15 @@ def sign_in():
 def sign_out(): 
 	session_code = request.headers.get('SessionCode')
 	if not session_code: 
-		errors = { "errors" : ["No SessionCode header provided"] }
-		resp = http_resource(errors, False)
+		errors = ["No SessionCode header provided"] 
+		resp = http_resource(errors, "errors", False)
 		resp.status_code = 401 
 		return resp
 	else: 
 		sess = db.session.query(Session).filter(Session.session_code == session_code)
 		if len(sess.all()) == 0:
-			errors = { "errors" : ["This session does not exist"] }
-			resp = http_resource(errors, False)
+			errors = ["This session does not exist"] 
+			resp = http_resource(errors, "errors", False)
 			resp.status_code = 401
 			return resp
 		else: 
@@ -89,6 +104,10 @@ def sign_out():
 			sess.is_active = False
 			db.session.commit() 
 			return jsonify({ "success" : True })
+
+
+
+
 
 
 

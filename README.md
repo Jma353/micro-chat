@@ -1,6 +1,6 @@
 # Micro-Chat
 
-## Flask with Sockets + Chat 
+### Flask with Sockets + Chat 
 
 
 ## DB Setup 
@@ -58,21 +58,25 @@ I've found that one of the easiest ways to make endpoint requests to a backend l
 
 ## Endpoints 
 
+### Users
 
-### Sign Up 
+#### Index
+GET `/mchat/users/index/` : Get a list of current users
+
+#### Sign Up 
 POST `/mchat/users/sign_up/` : Sign up 
 ##### HTTP Request BODY
 	{ name: "Joe", email: "joe@lol.com", password: "hello_world" }
 
 
-### Sign In 
+#### Sign In 
 POST `/mchat/users/sign_in/` : Sign in 
 ##### HTTP Request HEADERS
 	E:joe@lol.com
 	P:hello_world
 
 
-### Sign Out 
+#### Sign Out 
 POST `/mchat/users/sign_out/` : Sign out
 ##### HTTP Request HEADERS 
 	SessionCode:XYZ

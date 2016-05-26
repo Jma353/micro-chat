@@ -7,9 +7,9 @@ def http_json(result, bool):
 	return jsonify(result)
 
 
-def http_resource(result, name):
+def http_resource(result, name, bool=True):
 	resp = { "data": { name : result }}
-	return http_json(resp, True)
+	return http_json(resp, bool)
 
 
 def http_errors(result): 
