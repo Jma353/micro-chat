@@ -11,30 +11,59 @@ from app import db
 # Import module models 
 from app.mchat.models import * 
 
+# JWT 
+import jwt 
+
+# Marshmallow 
+from marshmallow import ValidationError
+
 # Define a Blueprint for this module (mchat)
-mchat = Blueprint('mchat', __name__, url_prefix='/mchat')
+mchat= Blueprint('mchat', __name__, url_prefix='/mchat')
 
 # Import socketio for socket creation in this module 
 from app import socketio
 
 
+
+def http_json(result, bool):
+	result.update({ "success": bool })
+	return jsonify(result)
+
+
+def http_resource(result, name):
+	resp = { "data": { name : result.data }}
+	return http_json(resp, True)
+
+def http_errors(result): 
+	errors = { "data" : { "errors" : result.errors["_schema"] }}
+	return http_json(errors, False)
+
+
 # Route + accepted methods 
 @mchat.route('/signup/', methods=['GET', 'POST'])
 def signup(): 
-	# Only respond to gets for now 
 	if request.method == 'GET':
 		return render_template('signup.html')
 
-	if request.method == 'POST':	
+	if request.method == 'POST':
 		json_data = request.get_json() 
-		print json_data
-		return jsonify(json_data)
+		result = UserSchema().load(json_data)
+		if result.errors: 
+			return http_errors(result)
+		else: 
+			db.session.add(result.data)
+			db.session.commit() 
+			result = UserSchema(exclude=("password",)).dump(result.data)
+			return http_resource(result, "user")
+
 
 
 # Socket testing 
 @socketio.on('connect', namespace='/test')
 def ws_conn():
 	socketio.emit('msg', { 'lol' : 'you are connected, DAMNNN DANIEL' }, namespace='/test')
+
+
 
 # Not necessary for now 
 """
@@ -44,7 +73,14 @@ def ws_disconn():
 """
 
 
+
+
 @socketio.on('chat', namespace='/test')
 def chat(chat): 
 	socketio.emit('chat', { 'lol' : chat }, namespace='/test')
+
+
+
+
+
 

@@ -1,10 +1,16 @@
 import os
 from sqlalchemy.dialects.postgresql import JSON # Possibly not needed
-from sqlalchemy.orm import validates
+from marshmallow import validates, validate, ValidationError, validates_schema
 
 # Import db + marshmallow
 from app import db 
 from app import ma 
+
+# Regular expressions 
+import re 
+
+# Import for pass / encryption 
+from werkzeug import check_password_hash, generate_password_hash 
 
 from sqlalchemy import orm, create_engine 
 
@@ -45,20 +51,13 @@ class User(Base):
 	password      = db.Column(db.String(192), nullable=False)
 
 
-	# Testing validation 
-	@validates('email')
-	def validate_email(self, key, email):
-		assert "@" in email
-		return email
-
-
-
 
 	def __init__(self, name, email, password):
 
 		self.name     = name
 		self.email    = email 
-		self.password = password
+
+		self.password = generate_password_hash(password)
 
 
 	def __repr(self):
@@ -77,12 +76,34 @@ class BaseSchema(ma.ModelSchema):
 
 # User Schema serializer 
 class UserSchema(BaseSchema):
+
 	class Meta(BaseSchema.Meta):
 		model = User
 
 
+	# Validations 
+
+	# Email validations 
+	@validates_schema
+	def validate_email(self, data):
+		email = data['email']
+		# check format 
+		email_format = re.compile("(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
+		if not email_format.match(email):
+			raise ValidationError("Please provide an email with correct format")
+
+		# check unqiuenss 
+		users = db.session.query(User).filter(User.email == email)
+		if len(users.all()) > 0: 
+			raise ValidationError("Another user exists with this email address")
 
 
+	# Name validations 
+	@validates_schema
+	def validate_name(self, data):
+		name = data['name']
+		if len(name) < 2: 
+			raise ValidationError("Please enter a longer name")
 
 
 
