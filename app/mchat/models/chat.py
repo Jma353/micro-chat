@@ -1,4 +1,5 @@
 from . import * 
+from app.mchat.models.participant import Participant, ParticipantSchema
 
 # For namespace generation 
 import hashlib 
@@ -30,9 +31,18 @@ class Chat(Base):
 # Chat schema 
 class ChatSchema(BaseSchema):
 
-	# Will nest participants in here eventually 
-
 	class Meta(BaseSchema.Meta):
 		model = Chat 
 
-	
+
+	# Add the the participants to the chat JSON 
+	@post_load
+	def add_participants(self, item):
+		chat_id = int(item['id'])
+		parts = db.session.query(Participant).filter(Participant.chat_id == chat_id).all() 
+		parts_json = ParticipantSchema(many=True).dump(parts)
+		item['participants'] = parts_json
+		return item 
+
+
+
