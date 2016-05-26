@@ -1,26 +1,12 @@
 from . import * 
 
 
-# Base db model (similar to ActiveModel)
-class Base(db.Model): 
-
-	# Makes this abstract so we aren't directly subclassing this relation 
-	# If we were, we'd need a foreign key to this "Base" relation from the subclass 
-	__abstract__ = True 
- 
-
-	id           = db.Column(db.Integer, primary_key=True)
-	created_at   = db.Column(db.DateTime, default=db.func.current_timestamp())
-	updated_at   = db.Column(db.DateTime, default=db.func.current_timestamp())
-
-
-
-# User model of chat app; inherits Base above 
+# User model of chat app; inherits Base 
 class User(Base): 
 
 	# Table Name
-	__tablename__ = "users"
-
+	__tablename__   = "users"
+	
 	# Username
 	name            = db.Column(db.String(128), nullable=False)
 	
@@ -36,21 +22,12 @@ class User(Base):
 
 		self.name     = name
 		self.email    = email 
-
 		self.password_digest = generate_password_hash(password)
 
 
-	def __repr(self):
+	def __repr__(self):
 		return "<User %r>" % (self.name)
 
-
-
-
-
-# Base Schema w/Session
-class BaseSchema(ma.ModelSchema):
-	class Meta: 
-		sqla_session = Session
 
 
 
@@ -64,7 +41,7 @@ class UserSchema(BaseSchema):
 		model = User
 
 
-	# Validations 
+	# Validations (all on validates_schema so we accumulate a list)
 
 	# Email validations 
 	@validates_schema

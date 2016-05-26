@@ -16,6 +16,9 @@ from app import socketio
 
 # Import module models 
 from app.mchat.models.user import * 
+from app.mchat.models.session import * 
+
+
 
 # IMPORT THE BLUEPRINT APP OBJECT 
 from app.mchat import mchat 
