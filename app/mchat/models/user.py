@@ -1,8 +1,9 @@
+# Import OS
 import os
-from sqlalchemy.dialects.postgresql import JSON # Possibly not needed
-from marshmallow import validates, validate, ValidationError, validates_schema
 
-# Import db + marshmallow
+# Import marshmallow functionality 
+from marshmallow import fields, validates_schema
+
 from app import db 
 from app import ma 
 
@@ -12,13 +13,13 @@ import re
 # Import for pass / encryption 
 from werkzeug import check_password_hash, generate_password_hash 
 
+# SQLAlchemy imports 
 from sqlalchemy import orm, create_engine 
 
 # Establish db sessions for concurrency safety 
 Session = orm.scoped_session(orm.sessionmaker())
 engine = create_engine(os.environ['DATABASE_URL'])
 Session.configure(bind=engine)
-
 
 
 # Base db model (similar to ActiveModel)
@@ -42,13 +43,13 @@ class User(Base):
 	__tablename__ = "users"
 
 	# Username
-	name          = db.Column(db.String(128), nullable=False)
-
+	name            = db.Column(db.String(128), nullable=False)
+	
 	# Email 
-	email         = db.Column(db.String(128), nullable=False, unique=True)
-
-	# Password (plain-text for now ... pending BCrypt integration)
-	password      = db.Column(db.String(192), nullable=False)
+	email           = db.Column(db.String(128), nullable=False, unique=True)
+	
+	# Password Digest 
+	password_digest = db.Column(db.String(192))
 
 
 
@@ -57,7 +58,7 @@ class User(Base):
 		self.name     = name
 		self.email    = email 
 
-		self.password = generate_password_hash(password)
+		self.password_digest = generate_password_hash(password)
 
 
 	def __repr(self):
@@ -77,6 +78,9 @@ class BaseSchema(ma.ModelSchema):
 # User Schema serializer 
 class UserSchema(BaseSchema):
 
+	# B/c password is passed in 
+	password = fields.String()
+
 	class Meta(BaseSchema.Meta):
 		model = User
 
@@ -92,7 +96,7 @@ class UserSchema(BaseSchema):
 		if not email_format.match(email):
 			raise ValidationError("Please provide an email with correct format")
 
-		# check unqiuenss 
+		# check unqiueness 
 		users = db.session.query(User).filter(User.email == email)
 		if len(users.all()) > 0: 
 			raise ValidationError("Another user exists with this email address")

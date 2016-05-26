@@ -1,6 +1,6 @@
 # Import flask deps
-from flask import Blueprint, request, render_template, \
-	flash, g, session, redirect, url_for, jsonify
+from flask import request, render_template, \
+	flash, g, session, redirect, url_for, jsonify, abort
 
 # Import for pass / encryption 
 from werkzeug import check_password_hash, generate_password_hash 
@@ -8,22 +8,21 @@ from werkzeug import check_password_hash, generate_password_hash
 # Import the db object from main app module
 from app import db 
 
-# Import module models 
-from app.mchat.models import * 
-
-# JWT 
-import jwt 
-
 # Marshmallow 
 from marshmallow import ValidationError
-
-# Define a Blueprint for this module (mchat)
-mchat= Blueprint('mchat', __name__, url_prefix='/mchat')
 
 # Import socketio for socket creation in this module 
 from app import socketio
 
+# Import module models 
+from app.mchat.models.user import * 
 
+# IMPORT THE BLUEPRINT APP OBJECT 
+from app.mchat import mchat 
+
+
+
+# Methods to compose HTTP response JSON 
 
 def http_json(result, bool):
 	result.update({ "success": bool })
@@ -39,6 +38,15 @@ def http_errors(result):
 	return http_json(errors, False)
 
 
+
+
+def auth_pass(email, password): 
+	user = db.session.query(User).filter(User.email==email).first()
+	return check_password_hash(user.password_digest, password)
+
+
+
+
 # Route + accepted methods 
 @mchat.route('/signup/', methods=['GET', 'POST'])
 def signup(): 
@@ -49,12 +57,34 @@ def signup():
 		json_data = request.get_json() 
 		result = UserSchema().load(json_data)
 		if result.errors: 
+			print result.errors
 			return http_errors(result)
 		else: 
 			db.session.add(result.data)
 			db.session.commit() 
-			result = UserSchema(exclude=("password",)).dump(result.data)
+			result = UserSchema(exclude=("password_digest",)).dump(result.data)
 			return http_resource(result, "user")
+
+
+
+# Sign in 
+@mchat.route('/signin/', methods=['POST'])
+def signin(): 
+	email = request.headers.get('E')
+	password = request.headers.get('P')
+
+	if auth_pass(email, password): 
+		return jsonify({ "success": True })
+	else: 
+		resp = jsonify({ "success": False })
+		resp.status_code = 401
+		return resp
+
+
+
+
+
+
 
 
 
@@ -78,6 +108,11 @@ def ws_disconn():
 @socketio.on('chat', namespace='/test')
 def chat(chat): 
 	socketio.emit('chat', { 'lol' : chat }, namespace='/test')
+
+
+
+
+
 
 
 

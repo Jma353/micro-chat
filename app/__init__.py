@@ -24,6 +24,7 @@ socketio = SocketIO()
 
 
 
+
 #### APP CONSTRUCTION ####
 
 
@@ -38,14 +39,16 @@ app.config.from_object(os.environ["APP_SETTINGS"])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
 
+
 # Define the database object (imported by modules + controllers)
 db = SQLAlchemy(app)
 # Marshmallow 
 ma = Marshmallow(app)
 
 
+
 # Import module / component using blueprint var
-from app.mchat.controllers import mchat as micro_chat
+from app.mchat import mchat as micro_chat
 
 # Register blueprint 
 app.register_blueprint(micro_chat)
