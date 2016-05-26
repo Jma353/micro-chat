@@ -21,7 +21,7 @@ def sign_up():
 			db.session.add(result.data)
 			db.session.commit() 
 			result = UserSchema(exclude=("password_digest",)).dump(result.data)
-			return http_resource(result, "user")
+			return http_resource(result.data, "user")
 
 
 
@@ -60,41 +60,28 @@ def sign_in():
 	user_id, authenticated = auth_pass(email, password)
 	if authenticated: 
 		session = get_or_create_session(user_id)
-		return jsonify(
-			{ "success" : True, "data" : { 
-				"session" : { 
-					"session_code" : session.session_code 
-					}
-				}
-			}
-		)
+		session_data = { "session" : { "session_code" : session.session_code }}
+		return http_resource(session_data, True)
 	else: 
 		resp = jsonify({ "success": False })
 		resp.status_code = 401
 		return resp
 
-# Sign out (a lot of repeating, must refactor later)
+
+# Sign out
 @mchat.route(namespace + '/sign_out/', methods=['POST'])
 def sign_out(): 
 	session_code = request.headers.get('SessionCode')
 	if not session_code: 
-		resp = jsonify(
-			{ "success" : False, "data" : {
-				"errors" : ["No SessionCode header provided"]
-				}
-			}
-		)
+		errors = { "errors" : ["No SessionCode header provided"] }
+		resp = http_resource(errors, False)
 		resp.status_code = 401 
 		return resp
 	else: 
 		sess = db.session.query(Session).filter(Session.session_code == session_code)
 		if len(sess.all()) == 0:
-			resp = jsonify(
-				{ "success" : False, "data" : {
-					"errors" : ["This session does not exist"]
-					}
-				}
-			)
+			errors = { "errors" : ["This session does not exist"] }
+			resp = http_resource(errors, False)
 			resp.status_code = 401
 			return resp
 		else: 
@@ -102,7 +89,6 @@ def sign_out():
 			sess.is_active = False
 			db.session.commit() 
 			return jsonify({ "success" : True })
-
 
 
 

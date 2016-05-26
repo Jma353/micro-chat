@@ -8,7 +8,7 @@ def http_json(result, bool):
 
 
 def http_resource(result, name):
-	resp = { "data": { name : result.data }}
+	resp = { "data": { name : result }}
 	return http_json(resp, True)
 
 
