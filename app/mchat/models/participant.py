@@ -36,7 +36,6 @@ class ParticipantSchema(BaseSchema):
 	# Validates uniqueness of <user_id,chat_id> combo 
 	@validates_schema
 	def unique_user_chat(self, data):
-		print data
 		user_id = int(data['user_id'])
 		chat_id = int(data['chat_id'])
 
@@ -51,7 +50,7 @@ class ParticipantSchema(BaseSchema):
 		user_id = int(item['user_id'])
 		item.pop('user_id', None) # Get rid of this
 		user = db.session.query(User).filter(User.id == user_id).first() 
-		user_json = UserSchema().dump(user).data
+		user_json = UserSchema(exclude=('password_digest',)).dump(user).data
 		item['user'] = user_json
 		return item
 

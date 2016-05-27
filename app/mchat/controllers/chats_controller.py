@@ -77,12 +77,8 @@ def make_chat(user_id):
 		resp.status_code = 404
 		return resp
 
-	# Get the name of the chat 
-	chat_name = request.get_json()['chat_name']
-
 	# If the other user exists, we can make our chat
-	chat_json = { "name" : chat_name }
-	chat = chat_schema.load(chat_json).data
+	chat = Chat() 
 	db.session.add(chat)
 	db.session.commit() 
 	print chat.id

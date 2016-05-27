@@ -61,24 +61,38 @@ I've found that one of the easiest ways to make endpoint requests to a backend l
 ## Users
 
 ### Index
-GET `/mchat/users/index/` : Get a list of current users
+GET `/mchat/users/index` : Get a list of current users
 
 ### Sign Up 
-POST `/mchat/users/sign_up/` : Sign up 
+POST `/mchat/users/sign_up` : Sign up 
 ##### HTTP Request BODY
 	{ name: "Joe", email: "joe@lol.com", password: "hello_world" }
 
 
 ### Sign In 
-POST `/mchat/users/sign_in/` : Sign in 
+POST `/mchat/users/sign_in` : Sign in 
 ##### HTTP Request HEADERS
 	E:joe@lol.com
 	P:hello_world
 
 
 ### Sign Out 
-POST `/mchat/users/sign_out/` : Sign out
+POST `/mchat/users/sign_out` : Sign out
 ##### HTTP Request HEADERS 
+	SessionCode:XYZ
+
+
+## Chats 
+
+### Index 
+GET `/mchat/chats/index` : Get an index of all the chats you're in 
+##### HTTP Request HEADERS
+	SessionCode:XYZ
+
+
+### Making a Chat 
+POST `/mchat/chats/make_chat/:user_id` : Make a chat with user corresponding to `user_id`
+##### HTTP Request HEADERS
 	SessionCode:XYZ
 
 
