@@ -3,7 +3,7 @@
 ### Flask with Sockets + Chat 
 
 
-## DB Setup 
+# DB Setup 
 	
 PostgreSQL is required.  Execute the following commands to create your DB: 
 
@@ -28,7 +28,7 @@ python manage.py db upgrade
 ```
 
 
-## Environment Variables 
+# Environment Variables 
 Environment variables are necessary for the configuration of this framework.  The package [autoenv](https://github.com/kennethreitz/autoenv) allows for environment variable loading and virtual environment setup on cd'ing into the base directory of the project.  Follow the following command line arguments to install `autoenv`: 
 
 ```python
@@ -52,31 +52,31 @@ export APP_SETTINGS="config.DevelopmentConfig"
 export DATABASE_URL="postgresql://localhost/micro_chat"
 ```
 
-## Making Endpoint Requests 
+# Making Endpoint Requests 
 I've found that one of the easiest ways to make endpoint requests to a backend like this is to use the command line tool [httpie](https://github.com/jkbrzt/httpie).  All documentation regarding HTTP request types, headers, etc. can be found on that github page. 
 
 
-## Endpoints 
+# Endpoints 
 
-### Users
+## Users
 
-#### Index
+### Index
 GET `/mchat/users/index/` : Get a list of current users
 
-#### Sign Up 
+### Sign Up 
 POST `/mchat/users/sign_up/` : Sign up 
 ##### HTTP Request BODY
 	{ name: "Joe", email: "joe@lol.com", password: "hello_world" }
 
 
-#### Sign In 
+### Sign In 
 POST `/mchat/users/sign_in/` : Sign in 
 ##### HTTP Request HEADERS
 	E:joe@lol.com
 	P:hello_world
 
 
-#### Sign Out 
+### Sign Out 
 POST `/mchat/users/sign_out/` : Sign out
 ##### HTTP Request HEADERS 
 	SessionCode:XYZ

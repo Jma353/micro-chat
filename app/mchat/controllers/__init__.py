@@ -2,6 +2,9 @@
 from flask import request, render_template, \
 	flash, g, session, redirect, url_for, jsonify, abort
 
+# For decorators around routes
+from functools import wraps 
+
 # Import for pass / encryption 
 from werkzeug import check_password_hash, generate_password_hash 
 

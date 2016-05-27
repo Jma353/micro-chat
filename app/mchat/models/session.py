@@ -29,7 +29,7 @@ class Session(Base):
 		return "<Session for user %r>" % (self.user_id)
 
 	# To update the session code on re-sign in 
-	def update_session_code(): 
+	def update_session_code(self): 
 		self.session_code = hashlib.sha1(os.urandom(64)).hexdigest() 
 		self.is_active = True 
 

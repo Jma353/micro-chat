@@ -18,9 +18,7 @@ from werkzeug import check_password_hash, generate_password_hash
 from sqlalchemy import orm, create_engine
 
 # Establish db sessions for concurrency safety 
-Session = orm.scoped_session(orm.sessionmaker())
 engine = create_engine(os.environ['DATABASE_URL'])
-Session.configure(bind=engine)
 
 
 
@@ -43,5 +41,7 @@ class Base(db.Model):
 # Base Schema w/Session
 class BaseSchema(ma.ModelSchema):
 	class Meta: 
+		Session = orm.scoped_session(orm.sessionmaker())
+		Session.configure(bind=engine)
 		sqla_session = Session
 

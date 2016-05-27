@@ -36,4 +36,5 @@ class MessageSchema(BaseSchema):
 		model = Message
 
 	# Validations would go here 
+	
 

@@ -1,7 +1,5 @@
 from . import * 
-# Returning based on errors
 from helpers import http_resource, http_errors
-
 
 # Namespace 
 namespace = '/users'
@@ -17,7 +15,8 @@ def user_index():
 	# Get all users 
 	all_users = db.session.query(User).all() 
 	result = users_schema.dump(all_users)
-	return http_resource(result.data, "users", True)
+	resp = http_resource(result.data, "users", True)
+	return resp
 
 
 

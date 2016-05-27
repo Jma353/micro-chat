@@ -4,6 +4,7 @@ from flask import jsonify
 
 def http_json(result, bool):
 	result.update({ "success": bool })
+	print result
 	return jsonify(result)
 
 
@@ -15,3 +16,5 @@ def http_resource(result, name, bool=True):
 def http_errors(result): 
 	errors = { "data" : { "errors" : result.errors["_schema"] }}
 	return http_json(errors, False)
+
+

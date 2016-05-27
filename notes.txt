@@ -1,0 +1,5 @@
+Sample user used for endpoint requests 
+
+name="Joe" email="joe@blank.com" password="blah"   
+
+"513425f6f8c18e48e51fc6a4fa833df858eef112"
