@@ -94,7 +94,8 @@ GET `/mchat/chats/index` : Get an index of all the chats you're in
 POST `/mchat/chats/make_chat/:user_id` : Make a chat with user corresponding to `user_id`
 ##### HTTP Request HEADERS
 	SessionCode:XYZ
-
+##### HTTP Request BODY
+	{ chat_name: "This is my chat" }
 
 
 

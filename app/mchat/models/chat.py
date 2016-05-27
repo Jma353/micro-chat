@@ -16,8 +16,12 @@ class Chat(Base):
 	# Is active boolean field 
 	is_active     = db.Column(db.Boolean)
 
-	def __init__(self):
+	# Name
+	name = db.Column(db.String(128), unique=True) 
 
+	def __init__(self, name):
+
+		self.name = name
 		self.namespace = "chat-" + hashlib.sha1(os.urandom(64)).hexdigest() 
 		self.is_active = True 
 
