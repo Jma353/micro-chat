@@ -12,7 +12,7 @@ users_schema = UserSchema(many=True, exclude=("password_digest",))
 
 
 # User Index Route 
-@mchat.route(namespace + '/index/', methods=['GET'])
+@mchat.route(namespace + '/index', methods=['GET'])
 def user_index(): 
 	# Get all users 
 	all_users = db.session.query(User).all() 
@@ -22,7 +22,7 @@ def user_index():
 
 
 # Sign Up Route 
-@mchat.route(namespace + '/sign_up/', methods=['GET', 'POST'])
+@mchat.route(namespace + '/sign_up', methods=['GET', 'POST'])
 def sign_up(): 
 	if request.method == 'GET':
 		return render_template('signup.html')
@@ -43,6 +43,8 @@ def sign_up():
 # Helper to auth on sign in 
 def auth_pass(email, password): 
 	user = db.session.query(User).filter(User.email == email).first()
+	if user == None: 
+		return None, False
 	user_id = user.id
 	return user_id, check_password_hash(user.password_digest, password)
 
@@ -66,8 +68,9 @@ def get_or_create_session(user_id):
 		return session
 
 
+
 # Sign in 
-@mchat.route(namespace + '/sign_in/', methods=['POST'])
+@mchat.route(namespace + '/sign_in', methods=['POST'])
 def sign_in(): 
 	# Get headers E and P (email and password)
 	email = request.headers.get('E')
@@ -78,13 +81,15 @@ def sign_in():
 		session_data = { "session_code" : session.session_code }
 		return http_resource(session_data, "session", True)
 	else: 
-		resp = jsonify({ "success": False })
+		errors = ["No email and password match these credentials"]
+		resp = http_resource(errors, "errors", False)
 		resp.status_code = 401
 		return resp
 
 
+
 # Sign out
-@mchat.route(namespace + '/sign_out/', methods=['POST'])
+@mchat.route(namespace + '/sign_out', methods=['POST'])
 def sign_out(): 
 	session_code = request.headers.get('SessionCode')
 	if not session_code: 
@@ -104,10 +109,6 @@ def sign_out():
 			sess.is_active = False
 			db.session.commit() 
 			return jsonify({ "success" : True })
-
-
-
-
 
 
 

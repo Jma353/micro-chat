@@ -15,8 +15,11 @@ from marshmallow import ValidationError
 from app import socketio
 
 # Import module models 
-from app.mchat.models.user import * 
+from app.mchat.models.chat import * 
+from app.mchat.models.message import * 
+from app.mchat.models.participant import * 
 from app.mchat.models.session import * 
+from app.mchat.models.user import * 
 
 
 

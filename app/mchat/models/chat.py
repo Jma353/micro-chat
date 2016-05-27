@@ -9,12 +9,12 @@ class Chat(Base):
 
 	# Table Name 
 	__tablename__ = "chats"
-
+	
 	# Namespace 
-	namespace = db.Column(db.String(45))
-
+	namespace     = db.Column(db.String(45))
+	
 	# Is active boolean field 
-	is_active = db.Column(db.Boolean)
+	is_active     = db.Column(db.Boolean)
 
 	def __init__(self):
 
