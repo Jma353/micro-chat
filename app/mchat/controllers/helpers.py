@@ -4,7 +4,6 @@ from flask import jsonify
 
 def http_json(result, bool):
 	result.update({ "success": bool })
-	print result
 	return jsonify(result)
 
 

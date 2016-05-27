@@ -28,7 +28,7 @@ def sign_up():
 
 	if request.method == 'POST':
 		json_data = request.get_json() 
-		result = UserSchema().load(json_data)
+		result = user_schema.load(json_data)
 		if result.errors: 
 			return http_errors(result)
 		else: 

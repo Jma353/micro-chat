@@ -34,6 +34,8 @@ class User(Base):
 # User Schema serializer 
 class UserSchema(BaseSchema):
 
+	# To have access to id for foreign relations 
+	id = field_for(User, 'id', dump_only=False)
 	# B/c password is passed in 
 	password = fields.String()
 

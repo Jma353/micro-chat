@@ -1,5 +1,5 @@
 from . import * 
-from app.mchat.models.user import UserSchema
+from app.mchat.models.user import * 
 
 # Participant model (linking users to chats)
 class Participant(Base):
@@ -27,8 +27,8 @@ class Participant(Base):
 # Participant schema
 class ParticipantSchema(BaseSchema):
 
-	# Nest the user in the JSON 
-	user = fields.Nested(UserSchema)
+	user_id = field_for(Participant, 'user_id', dump_only=False)
+	chat_id = field_for(Participant, 'chat_id', dump_only=False)
 
 	class Meta(BaseSchema.Meta):
 		model = Participant
@@ -36,6 +36,7 @@ class ParticipantSchema(BaseSchema):
 	# Validates uniqueness of <user_id,chat_id> combo 
 	@validates_schema
 	def unique_user_chat(self, data):
+		print data
 		user_id = int(data['user_id'])
 		chat_id = int(data['chat_id'])
 
@@ -43,6 +44,18 @@ class ParticipantSchema(BaseSchema):
 		parts = parts.filter(Participant.chat_id == chat_id)
 		if len(parts.all()) > 0: 
 			raise ValidationError("You are already part of this chat")
+
+
+	@post_dump 
+	def add_user(self, item):
+		user_id = int(item['user_id'])
+		item.pop('user_id', None) # Get rid of this
+		user = db.session.query(User).filter(User.id == user_id).first() 
+		user_json = UserSchema().dump(user).data
+		item['user'] = user_json
+		return item
+
+
 
 
 

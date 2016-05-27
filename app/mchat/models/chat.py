@@ -19,8 +19,9 @@ class Chat(Base):
 	# Name
 	name = db.Column(db.String(128)) 
 
-	def __init__(self):
+	def __init__(self, name):
 
+		self.name = name
 		self.namespace = "chat-" + hashlib.sha1(os.urandom(64)).hexdigest() 
 		self.is_active = True 
 
@@ -34,18 +35,26 @@ class Chat(Base):
 # Chat schema 
 class ChatSchema(BaseSchema):
 
+	# To have access to id for foreign relations
+	id = field_for(Chat, 'id', dump_only=False)
+
 	class Meta(BaseSchema.Meta):
 		model = Chat 
 
 
 	# Add the the participants to the chat JSON 
-	@post_load
+	@post_dump
 	def add_participants(self, item):
 		chat_id = int(item['id'])
 		parts = db.session.query(Participant).filter(Participant.chat_id == chat_id).all() 
-		parts_json = ParticipantSchema(many=True).dump(parts)
+		parts_json = ParticipantSchema(many=True).dump(parts).data
 		item['participants'] = parts_json
 		return item 
+
+
+
+
+
 
 
 
